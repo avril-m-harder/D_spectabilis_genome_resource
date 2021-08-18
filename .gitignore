@@ -1,0 +1,8 @@
+*temp*
+./script_stdouts/*
+*.i*
+*.o*
+*.s[0-9]*
+archive/
+./_c*_/
+./_*_/ 
