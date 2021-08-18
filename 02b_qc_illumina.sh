@@ -51,6 +51,8 @@ while read -a line
 	./sra_downloads/${line[0]}_2.fastq.gz
 	done < d_stephensi_sra_list.txt
 	
+exit
+	
 
 ## --------------------------------
 ## Trimmomatic to clean and trim adapters from reads

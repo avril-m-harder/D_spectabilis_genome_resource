@@ -1,8 +1,10 @@
 #!/bin/bash
 #
-#   +----------------------+
-#   |  USE 10 CPU + 100 Gb |
-#   +----------------------+
+#   +-----------------------+
+#   |  USE:                 |
+#   |    - LARGE queue      |
+#   |    - 10 CPU + 100 Gb  |
+#   +-----------------------+
 #
 #  Replace the USER name in this script with your username and
 #  call your project whatever you want
@@ -42,13 +44,13 @@ MINIMAP=/scratch/aubaxh002_minimap2/minimap2/minimap2
 
 ## --------------------------------
 ## Index reference genomes for Minimap2
-$MINIMAP -t 10 -x map-hifi \
--d ./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.mmi \
-./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa
-
-$MINIMAP -t 10 -x map-hifi \
--d ./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.mmi \
-./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fa
+# $MINIMAP -t 10 -x map-hifi \
+# -d ./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.mmi \
+# ./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa
+# 
+# $MINIMAP -t 10 -x map-hifi \
+# -d ./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.mmi \
+# ./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fa
 
 
 ## --------------------------------
@@ -59,7 +61,7 @@ cat d_spectabilis_sra_list.txt | while read line
 	do
 	$MINIMAP -ax map-hifi -t 10 \
 	./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.mmi \
-	${line}_1.fastq.gz > ./align_files/${line}_Dgenome.sam
+	./sra_downloads/${line}_1.fastq.gz > ./align_files/${line}_Dgenome.sam
 	
 	samtools view -@ 9 -S -b ./align_files/${line}_Dgenome.sam > \
 	./align_files/${line}_Dgenome.bam
@@ -70,7 +72,7 @@ cat d_spectabilis_sra_list.txt | while read line
 	do
 	$MINIMAP -ax map-hifi -t 10 \
 	./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.mmi \
-	${line}_1.fastq.gz > ./align_files/${line}_Cgenome.sam
+	./sra_downloads/${line}_1.fastq.gz > ./align_files/${line}_Cgenome.sam
 	
 	samtools view -@ 9 -S -b ./align_files/${line}_Cgenome.sam > \
 	./align_files/${line}_Cgenome.bam
