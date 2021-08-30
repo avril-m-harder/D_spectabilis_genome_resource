@@ -94,14 +94,12 @@ vcftools --vcf unfilt_3_spp_Cgenome.vcf.gz \
 
 ## --------------------------------
 ## Split back in to sample VCFs and convert to FASTQ files for PSMC input
-
-
-
-
+bcftools +split -O z -o ../final_psmc_input unfilt_3_spp_Dgenome.vcf.gz
+bcftools +split -O z -o ../final_psmc_input unfilt_3_spp_Cgenome.vcf.gz
 
 
 # vcfutils.pl vcf2fq -Q 30 [VCF] > cns.fq
-
+# gzip FASTQ files
 
 ## --------------------------------
 ## Copy results back to project output directory (in home)

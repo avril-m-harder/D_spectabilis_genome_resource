@@ -36,53 +36,52 @@ module load trimmomatic/0.39
 ## --------------------------------
 ## Run FASTQC, see where we're at for the D. ordii and D. stephensi reads
 ## D. ordii
-while read -a line
-	do
-	fastqc -t 5 -o fastqc_output/ \
-	./sra_downloads/${line[0]}_1.fastq.gz \
-	./sra_downloads/${line[0]}_2.fastq.gz
-	done < d_ordii_sra_list.txt
+# while read -a line
+# 	do
+# 	fastqc -t 5 -o fastqc_output/ \
+# 	./sra_downloads/${line[0]}_1.fastq.gz \
+# 	./sra_downloads/${line[0]}_2.fastq.gz
+# 	done < d_ordii_sra_list.txt
 	
 ## D. stephensi
-while read -a line
-	do
-	fastqc -t 5 -o fastqc_output/ \
-	./sra_downloads/${line[0]}_1.fastq.gz \
-	./sra_downloads/${line[0]}_2.fastq.gz
-	done < d_stephensi_sra_list.txt
-	
-exit
-	
+# while read -a line
+# 	do
+# 	fastqc -t 5 -o fastqc_output/ \
+# 	./sra_downloads/${line[0]}_1.fastq.gz \
+# 	./sra_downloads/${line[0]}_2.fastq.gz
+# 	done < d_stephensi_sra_list.txt
 
+	
 ## --------------------------------
 ## Trimmomatic to clean and trim adapters from reads
-## D. ordii
-while read -a line
-	do
-	trimmomatic PE -phred33 -threads 5 \
-	./sra_downloads/${line[0]}_1.fastq.gz \
-	./sra_downloads/${line[0]}_2.fastq.gz \
-	./cleaned_reads/trimmed_paired_${line[0]}_1.fastq.gz \
-	./cleaned_reads/trimmed_unpaired_${line[0]}_1.fastq.gz \
-	./cleaned_reads/trimmed_paired_${line[0]}_2.fastq.gz \
-	./cleaned_reads/trimmed_unpaired_${line[0]}_2.fastq.gz \
-	LEADING:20 TRAILING:20 MINLEN:30 \
-	ILLUMINACLIP:[adapter_file.fa:2:40:10]
-	done < d_ordii_sra_list.txt
+# mkdir cleaned_reads/
 
-## D. stephensi
-while read -a line
-	do
-	trimmomatic PE -phred33 -threads 5 \
-	./sra_downloads/${line[0]}_1.fastq.gz \
-	./sra_downloads/${line[0]}_2.fastq.gz \
-	./cleaned_reads/trimmed_paired_${line[0]}_1.fastq.gz \
-	./cleaned_reads/trimmed_unpaired_${line[0]}_1.fastq.gz \
-	./cleaned_reads/trimmed_paired_${line[0]}_2.fastq.gz \
-	./cleaned_reads/trimmed_unpaired_${line[0]}_2.fastq.gz \
-	LEADING:20 TRAILING:20 MINLEN:30 \
-	ILLUMINACLIP:[adapter_file.fa:2:40:10]
-	done < d_stephensi_sra_list.txt
+## D. ordii -- no adapters detected via FastQC, just quality issues
+# while read -a line
+# 	do
+# 	trimmomatic PE -phred33 -threads 5 \
+# 	./sra_downloads/${line[0]}_1.fastq.gz \
+# 	./sra_downloads/${line[0]}_2.fastq.gz \
+# 	./cleaned_reads/trimmed_paired_${line[0]}_1.fastq.gz \
+# 	./cleaned_reads/trimmed_unpaired_${line[0]}_1.fastq.gz \
+# 	./cleaned_reads/trimmed_paired_${line[0]}_2.fastq.gz \
+# 	./cleaned_reads/trimmed_unpaired_${line[0]}_2.fastq.gz \
+# 	LEADING:20 TRAILING:20 MINLEN:30
+# 	done < d_ordii_sra_list.txt
+
+## D. stephensi -- adapter and quality issues detected with FastQC
+# while read -a line
+# 	do
+# 	trimmomatic PE -phred33 -threads 5 \
+# 	./sra_downloads/${line[0]}_1.fastq.gz \
+# 	./sra_downloads/${line[0]}_2.fastq.gz \
+# 	./cleaned_reads/trimmed_paired_${line[0]}_1.fastq.gz \
+# 	./cleaned_reads/trimmed_unpaired_${line[0]}_1.fastq.gz \
+# 	./cleaned_reads/trimmed_paired_${line[0]}_2.fastq.gz \
+# 	./cleaned_reads/trimmed_unpaired_${line[0]}_2.fastq.gz \
+# 	LEADING:20 TRAILING:20 MINLEN:30 \
+# 	ILLUMINACLIP:adapters.fa:2:40:10
+# 	done < d_stephensi_sra_list.txt
 
 
 ## --------------------------------
@@ -94,7 +93,7 @@ while read -a line
 	./cleaned_reads/trimmed_paired_${line[0]}_1.fastq.gz \
 	./cleaned_reads/trimmed_unpaired_${line[0]}_1.fastq.gz \
 	./cleaned_reads/trimmed_paired_${line[0]}_2.fastq.gz \
-	./cleaned_reads/trimmed_unpaired_${line[0]}_2.fastq.gz \
+	./cleaned_reads/trimmed_unpaired_${line[0]}_2.fastq.gz
 	done < d_ordii_sra_list.txt
 	
 ## D. stephensi
@@ -104,7 +103,6 @@ while read -a line
 	./cleaned_reads/trimmed_paired_${line[0]}_1.fastq.gz \
 	./cleaned_reads/trimmed_unpaired_${line[0]}_1.fastq.gz \
 	./cleaned_reads/trimmed_paired_${line[0]}_2.fastq.gz \
-	./cleaned_reads/trimmed_unpaired_${line[0]}_2.fastq.gz \
+	./cleaned_reads/trimmed_unpaired_${line[0]}_2.fastq.gz
 	done < d_stephensi_sra_list.txt
-
 

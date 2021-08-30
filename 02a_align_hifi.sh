@@ -3,7 +3,7 @@
 #   +-----------------------+
 #   |  USE:                 |
 #   |    - LARGE queue      |
-#   |    - 10 CPU + 100 Gb  |
+#   |    - 20 CPU + 50 Gb   |
 #   +-----------------------+
 #
 #  Replace the USER name in this script with your username and
@@ -55,65 +55,90 @@ MINIMAP=/scratch/aubaxh002_minimap2/minimap2/minimap2
 
 ## --------------------------------
 ## Align D. spectabilis reads to D. spectabilis reference...
-mkdir align_files/
-
-cat d_spectabilis_sra_list.txt | while read line
-	do
-	$MINIMAP -ax map-hifi -t 10 \
-	./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.mmi \
-	./sra_downloads/${line}_1.fastq.gz > ./align_files/${line}_Dgenome.sam
-	
-	samtools view -@ 9 -S -b ./align_files/${line}_Dgenome.sam > \
-	./align_files/${line}_Dgenome.bam
-	done
+# mkdir align_files/
+# 
+# cat d_spectabilis_sra_list.txt | while read line
+# 	do
+# 	$MINIMAP -ax map-hifi -t 10 \
+# 	./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.mmi \
+# 	./sra_downloads/${line}_1.fastq.gz > ./align_files/${line}_Dgenome.sam
+# 	
+# 	samtools view -@ 9 -S -b ./align_files/${line}_Dgenome.sam > \
+# 	./align_files/${line}_Dgenome.bam
+# 	done
 
 ## ... and to C. canadensis reference
-cat d_spectabilis_sra_list.txt | while read line
-	do
-	$MINIMAP -ax map-hifi -t 10 \
-	./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.mmi \
-	./sra_downloads/${line}_1.fastq.gz > ./align_files/${line}_Cgenome.sam
-	
-	samtools view -@ 9 -S -b ./align_files/${line}_Cgenome.sam > \
-	./align_files/${line}_Cgenome.bam
-	done
+# cat d_spectabilis_sra_list.txt | while read line
+# 	do
+# 	$MINIMAP -ax map-hifi -t 10 \
+# 	./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.mmi \
+# 	./sra_downloads/${line}_1.fastq.gz > ./align_files/${line}_Cgenome.sam
+# 	
+# 	samtools view -@ 9 -S -b ./align_files/${line}_Cgenome.sam > \
+# 	./align_files/${line}_Cgenome.bam
+# 	done
 
 
 ## --------------------------------
 ## Merge and sort BAM files
-cd align_files/
+# cd /scratch/aubaxh002_psmc/align_files/
 
 ## D genome alignment
-samtools merge -@ 9 -o d_spectabilis_Dgenome.bam \
-SRR14662548_Dgenome.bam \
-SRR14662549_Dgenome.bam \
-SRR14662550_Dgenome.bam \
-SRR14662551_Dgenome.bam \
-SRR14662552_Dgenome.bam
-
-samtools sort -o sorted_d_spectabilis_Dgenome.bam d_spectabilis_Dgenome.bam
+# samtools merge -@ 9 d_spectabilis_Dgenome.bam \
+# SRR14662548_Dgenome.bam \
+# SRR14662549_Dgenome.bam \
+# SRR14662550_Dgenome.bam \
+# SRR14662551_Dgenome.bam \
+# SRR14662552_Dgenome.bam
+# 
+# samtools sort -@ 9 -o sorted_d_spectabilis_Dgenome.bam d_spectabilis_Dgenome.bam
 
 ## C genome alignment
-samtools merge -@ 9 -o d_spectabilis_Cgenome.bam \
-SRR14662548_Cgenome.bam \
-SRR14662549_Cgenome.bam \
-SRR14662550_Cgenome.bam \
-SRR14662551_Cgenome.bam \
-SRR14662552_Cgenome.bam
+# samtools merge -@ 9 d_spectabilis_Cgenome.bam \
+# SRR14662548_Cgenome.bam \
+# SRR14662549_Cgenome.bam \
+# SRR14662550_Cgenome.bam \
+# SRR14662551_Cgenome.bam \
+# SRR14662552_Cgenome.bam
+# 
+# samtools sort -@ 9 -o sorted_d_spectabilis_Cgenome.bam d_spectabilis_Cgenome.bam
 
-samtools sort -@ 9 -o sorted_d_spectabilis_Cgenome.bam d_spectabilis_Cgenome.bam
+## copy to home directory
+# cp sorted_d_spectabilis_Dgenome.bam /home/aubaxh002/psmc/output/
+# cp sorted_d_spectabilis_Cgenome.bam /home/aubaxh002/psmc/output/
+
+
+## --------------------------------
+## Index reference genomes for samtools/bcftools
+cd /scratch/aubaxh002_psmc/variant_files
+
+# samtools faidx ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa
+# samtools faidx ../sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fa
 
 
 ## --------------------------------
 ## Generate VCF for each alignment
 ## D genome alignment
-samtools mpileup -uf ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fna.gz \
-sorted_d_spectabilis_Dgenome.bam | bcftools call --threads 10 -c | \
+bcftools mpileup --threads 20 \
+-f ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa \
+--output raw_d_spectabilis_Dgenome.vcf \
 --output-type v \
---output ../variant_files/unfilt_d_spectabilis_Dgenome.vcf
+../align_files/sorted_d_spectabilis_Dgenome.bam
+
+bcftools call --threads 20 -c \
+--output-type v \
+--output unfilt_d_spectabilis_Dgenome.vcf \
+raw_d_spectabilis_Dgenome.vcf
+
 
 ## C genome alignment
-samtools mpileup -uf ../sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fna.gz \
-sorted_d_spectabilis_Cgenome.bam | bcftools call --threads 10 -c \
+bcftools mpileup --threads 20 \
+-f ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa \
+--output raw_d_spectabilis_Cgenome.vcf \
 --output-type v \
---output ../variant_files/unfilt_d_spectabilis_Cgenome.vcf
+../align_files/sorted_d_spectabilis_Cgenome.bam
+
+bcftools call --threads 20 -c \
+--output-type v \
+--output unfilt_d_spectabilis_Cgenome.vcf \
+raw_d_spectabilis_Cgenome.vcf

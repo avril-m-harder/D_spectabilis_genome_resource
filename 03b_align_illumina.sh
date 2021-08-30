@@ -1,5 +1,11 @@
 #!/bin/bash
 #
+#   +-----------------------+
+#   |  USE:                 |
+#   |    - LARGE queue      |
+#   |    - 20 CPU + 20 Gb   |
+#   +-----------------------+
+#
 #  Replace the USER name in this script with your username and
 #  call your project whatever you want
 #
@@ -41,42 +47,44 @@ module load samtools/1.11
 
 ## --------------------------------
 ## Index reference genomes
-samtools faidx ./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fna.gz
-samtools faidx ./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fna.gz
+# bwa index ./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa
+# bwa index ./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fa
 	
-
 
 ## --------------------------------
 ## Align reads to reference genomes
 ## D genome - ordii
 while read -a line
 	do
-	bwa mem -10 -M \
-	./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fna.gz \
+	bwa mem -t 20 -M \
+	./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa \
 	./cleaned_reads/trimmed_paired_${line[0]}_1.fastq.gz \
 	./cleaned_reads/trimmed_paired_${line[0]}_2.fastq.gz \
 	> ./align_files/${line[0]}_Dgenome.bam
+	done < TEMP1_d_ordii_sra_list.txt
 
 ## C genome	- ordii 
-	bwa mem -10 -M \
-	./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fna.gz \
+while read -a line
+	do
+	bwa mem -t 20 -M \
+	./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fa \
 	./cleaned_reads/trimmed_paired_${line[0]}_1.fastq.gz \
 	./cleaned_reads/trimmed_paired_${line[0]}_2.fastq.gz \
 	> ./align_files/${line[0]}_Cgenome.bam
-	done < d_ordii_sra_list.txt
+	done < TEMP2_d_ordii_sra_list.txt
 	
 ## D genome - stephensi
 while read -a line
 	do
-	bwa mem -10 -M \
-	./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fna.gz \
+	bwa mem -t 20 -M \
+	./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa \
 	./cleaned_reads/trimmed_paired_${line[0]}_1.fastq.gz \
 	./cleaned_reads/trimmed_paired_${line[0]}_2.fastq.gz \
 	> ./align_files/${line[0]}_Dgenome.bam
 
 ## C genome	- stephensi 
-	bwa mem -10 -M \
-	./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fna.gz \
+	bwa mem -t 20 -M \
+	./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fa \
 	./cleaned_reads/trimmed_paired_${line[0]}_1.fastq.gz \
 	./cleaned_reads/trimmed_paired_${line[0]}_2.fastq.gz \
 	> ./align_files/${line[0]}_Cgenome.bam
@@ -87,7 +95,7 @@ while read -a line
 cd ./align_files/
 
 ## D genome - ordii
-samtools merge -o d_ordii_Dgenome.bam \
+samtools merge -@ 19 d_ordii_Dgenome.bam \
 SRR1646412_Dgenome.bam \
 SRR1646413_Dgenome.bam \
 SRR1646414_Dgenome.bam \
@@ -101,10 +109,10 @@ SRR1646421_Dgenome.bam \
 SRR1646422_Dgenome.bam \
 SRR1646423_Dgenome.bam
 
-samtools sort -o sorted_d_ordii_Dgenome.bam d_ordii_Dgenome.bam
+samtools sort -@ 19 -o sorted_d_ordii_Dgenome.bam d_ordii_Dgenome.bam
 
 ## C genome - ordii
-samtools merge -o d_ordii_Cgenome.bam \
+samtools merge -@ 19 d_ordii_Cgenome.bam \
 SRR1646412_Cgenome.bam \
 SRR1646413_Cgenome.bam \
 SRR1646414_Cgenome.bam \
@@ -118,37 +126,43 @@ SRR1646421_Cgenome.bam \
 SRR1646422_Cgenome.bam \
 SRR1646423_Cgenome.bam
 
-samtools sort -o sorted_d_ordii_Cgenome.bam d_ordii_Cgenome.bam
+samtools sort -@ 19 -o sorted_d_ordii_Cgenome.bam d_ordii_Cgenome.bam
 
 ## D genome - stephensi
-samtools sort sorted_d_stephensi_Dgenome.bam SRR14572526_Dgenome.bam 
+samtools sort -@ 19 sorted_d_stephensi_Dgenome.bam SRR14572526_Dgenome.bam 
 
 ## C genome	- stephensi
-samtools sort sorted_d_stephensi_Cgenome.bam SRR14572526_Cgenome.bam
+samtools sort -@ 19 sorted_d_stephensi_Cgenome.bam SRR14572526_Cgenome.bam
 
 ## --------------------------------
 ## Generate VCF for each alignment
+cd /scratch/aubaxh002_psmc/variant_files
+
 ## D genome - ordii
-samtools mpileup -uf ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fna.gz \
-sorted_d_ordii_Dgenome.bam | bcftools call -c \
+bcftools mpileup --threads 20 \
+-f ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa \
+sorted_d_ordii_Dgenome.bam | bcftools call --threads 20 -c \
 --output-type v \
---output ../variant_files/unfilt_d_ordii_Dgenome.vcf
+--output unfilt_d_ordii_Dgenome.vcf
 
 ## C genome - ordii
-samtools mpileup -uf ../sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fna.gz \
-sorted_d_ordii_Cgenome.bam | bcftools call -c \
+bcftools mpileup --threads 20 \
+-f ../sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fa \
+sorted_d_ordii_Cgenome.bam | bcftools call --threads 20 -c \
 --output-type v \
---output ../variant_files/unfilt_d_ordii_Cgenome.vcf
+--output unfilt_d_ordii_Cgenome.vcf
 
 ## D genome - stephensi
-samtools mpileup -uf ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fna.gz \
-sorted_d_stephensi_Dgenome.bam | bcftools call -c \
+bcftools mpileup --threads 20 \
+-f ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa \
+sorted_d_stephensi_Dgenome.bam | bcftools call --threads 20 -c \
 --output-type v \
---output ../variant_files/unfilt_d_stephensi_Dgenome.vcf
+--output unfilt_d_stephensi_Dgenome.vcf
 
 ## C genome  - stephensi
-samtools mpileup -uf ../sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fna.gz \
-sorted_d_stephensi_Cgenome.bam | bcftools call -c \
+bcftools mpileup  --threads 20 \
+-f ../sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fa \
+sorted_d_stephensi_Cgenome.bam | bcftools call --threads 20 -c \
 --output-type v \
---output ../variant_files/unfilt_d_stephensi_Cgenome.vcf
+--output unfilt_d_stephensi_Cgenome.vcf
 
