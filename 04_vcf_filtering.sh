@@ -22,16 +22,7 @@
 USER=aubaxh002
 
 ## Set project name
-PROJ=assem_stats
-
-## Create a directory on /scratch
-mkdir /scratch/${USER}_${PROJ}/
-
-## Set permissions for directory
-chmod 700 /scratch/${USER}_${PROJ}/
-
-##  Copy input files to scratch
-cp /home/$USER/$PROJ/input/* /scratch/${USER}_${PROJ}/
+PROJ=psmc
 
 ## cd into working scratch directory
 cd /scratch/${USER}_${PROJ}/
@@ -39,68 +30,158 @@ cd /scratch/${USER}_${PROJ}/
 
 ## --------------------------------
 ## Load modules 
-module load bcftools/1.10.2
-module load samtools/1.11
-module load vcftools/0.1.14
+# module load bcftools/1.13
 
 
 ## --------------------------------
-## Merge VCF files for same references for filtering
+## Index, get stats on sample VCF files
 cd variant_files/
-gzip *.vcf
 
-bcftools merge unfilt_d_spectabilis_Dgenome.vcf.gz \
-unfilt_d_ordii_Dgenome.vcf.gz \
-unfilt_d_stephensi_Dgenome.vcf.gz \
---threads 5 \
--o unfilt_3_spp_Dgenome.vcf.gz
+# bgzip unfilt_d_spectabilis_Dgenome.vcf
+# bgzip unfilt_d_stephensi_Dgenome.vcf
+# bgzip unfilt_d_ordii_Dgenome.vcf
 
-bcftools merge unfilt_d_spectabilis_Cgenome.vcf.gz \
-unfilt_d_ordii_Cgenome.vcf.gz \
-unfilt_d_stephensi_Cgenome.vcf.gz \
---threads 5 \
--o unfilt_3_spp_Cgenome.vcf.gz
+# bcftools index unfilt_d_spectabilis_Dgenome.vcf.gz
+# bcftools index unfilt_d_stephensi_Dgenome.vcf.gz
+# bcftools index unfilt_d_ordii_Dgenome.vcf.gz
+
+# bcftools stats unfilt_d_ordii_Dgenome.vcf.gz > unfilt_d_ordii_Dgenome.vcf.gz_STATS.txt
+# bcftools stats unfilt_d_spectabilis_Dgenome.vcf.gz > unfilt_d_spectabilis_Dgenome.vcf.gz_STATS.txt
+# bcftools stats unfilt_d_stephensi_Dgenome.vcf.gz > unfilt_d_stephensi_Dgenome.vcf.gz_STATS.txt
+
+## this results in loss of INFO details. should do something else.
+# bcftools merge unfilt_d_spectabilis_Dgenome.vcf.gz \
+# unfilt_d_ordii_Dgenome.vcf.gz \
+# unfilt_d_stephensi_Dgenome.vcf.gz \
+# --threads 5 \
+# -O z \
+# -o unfilt_3_spp_Dgenome.vcf.gz
+
 
 ## --------------------------------
-## Filter merged VCF file -- not using this for now, vcftools instead
-# bcftools filter \
-# --SnpGap 3 \
-# --threads 5 \
-# --exclude FORMAT/DP[0-2] < 10 \
-# -o filtered_3_spp_Dgenome.vcf.gz \
-# unfilt_3_spp_Dgenome.vcf.gz
+## Filter sample VCF files (merging before filtering results in loss of INFO details)
+# module load vcftools/0.1.14
+# module load samtools
+# 
+# for i in d_ordii \
+# 		 d_stephensi \
+# 		 d_spectabilis
+# 	do
+# 	vcftools --gzvcf unfilt_${i}_Dgenome.vcf.gz \
+# 	--out filtered_${i}_Dgenome \
+# 	--recode --recode-INFO-all \
+# 	--remove-indels \
+# 	--minQ 30 \
+# 	--minDP 15
+# 	done
+# 
+# module purge
+# module load bcftools/1.13
+# 
+# for i in d_ordii \
+# 		 d_stephensi \
+# 		 d_spectabilis
+# 	do
+# 	bgzip filtered_${i}_Dgenome.recode.vcf
+# 	bcftools stats filtered_${i}_Dgenome.recode.vcf.gz > filtered_${i}_STATS.txt
+# 	done
+# 	
+# for i in d_ordii \
+# 		 d_stephensi \
+# 		 d_spectabilis
+# 	do
+# 	bcftools view -M 2 \
+# 	--output-type z \
+# 	--output biallelic_filtered_${i}_Dgenome.recode.vcf.gz \
+# 	filtered_${i}_Dgenome.recode.vcf.gz
+# 	
+# 	bcftools stats biallelic_filtered_${i}_Dgenome.recode.vcf.gz > \
+# 	biallelic_filtered_${i}_STATS.txt
+# 	done
 
-## --max-missing 1 ==> no missing data allowed
-## D genome
-vcftools --vcf unfilt_3_spp_Dgenome.vcf.gz \
---out filtered_3_spp_Dgenome \
---recode --recode-INFO-all \
---remove-indels \
---max-missing 1 \
---minQ 30 \
---minDP 10 \
---site-mean-depth
-
-## C genome
-vcftools --vcf unfilt_3_spp_Cgenome.vcf.gz \
---out filtered_3_spp_Cgenome \
---recode --recode-INFO-all \
---remove-indels \
---max-missing 1 \
---minQ 30 \
---minDP 10 \
---site-mean-depth
+## --------------------------------
+## Merge to filter based on missingness (none allowed)
+# module purge
+# module load bcftools/1.13
+# 
+# for i in d_ordii \
+# 		 d_stephensi \
+# 		 d_spectabilis
+# 	do
+# 	bcftools index biallelic_filtered_${i}_Dgenome.recode.vcf.gz
+# 	done
+# 
+# bcftools merge \
+# 	biallelic_filtered_d_ordii_Dgenome.recode.vcf.gz \
+# 	biallelic_filtered_d_stephensi_Dgenome.recode.vcf.gz \
+# 	biallelic_filtered_d_spectabilis_Dgenome.recode.vcf.gz \
+# 	--info-rules DP:join \
+# 	--no-index \
+# 	--output-type z \
+# 	--output unfiltered_3_spp.vcf.gz
+# 
+# module purge
+# module load vcftools/0.1.14
+# 	vcftools \
+# 	--gzvcf unfiltered_3_spp.vcf.gz \
+# 	--max-missing 1 \
+# 	--out filtered_3_spp \
+# 	--recode --recode-INFO-all 
 
 
 ## --------------------------------
 ## Split back in to sample VCFs and convert to FASTQ files for PSMC input
-bcftools +split -O z -o ../final_psmc_input unfilt_3_spp_Dgenome.vcf.gz
-bcftools +split -O z -o ../final_psmc_input unfilt_3_spp_Cgenome.vcf.gz
+# module purge
+# module load bcftools/1.13
 
+# bgzip filtered_3_spp.recode.vcf
+# 
+# bcftools stats filtered_3_spp.recode.vcf.gz > \
+# filtered_3_spp.recode_STATS.txt
+# 
+# bcftools +split -Oz -o ../final_psmc_input filtered_3_spp.recode.vcf.gz
 
-# vcfutils.pl vcf2fq -Q 30 [VCF] > cns.fq
-# gzip FASTQ files
+## run stats on each file to make sure they look good
+module purge
+module load bcftools/1.13
+
+cd ../final_psmc_input
+# 
+# for i in d_ordii \
+# 		 d_stephensi \
+# 		 d_spectabilis
+# 	do
+# 	bcftools stats final_${i}_3spp_split.vcf.gz > final_3spp_split_${i}_STATS.txt
+# 	done
+
+# gunzip -c final_d_ordii_3spp_split.vcf.gz > final_d_ordii_3spp_split.vcf
+# gunzip -c final_d_stephensi_3spp_split.vcf.gz > final_d_stephensi_3spp_split.vcf
+# gunzip -c final_d_spectabilis_3spp_split.vcf.gz > final_d_spectabilis_3spp_split.vcf
+
+# vcfutils.pl vcf2fq -d 10 -Q 30 final_d_ordii_3spp_split.vcf | gzip > \
+# d_ordii.fq.gz
+
+vcfutils.pl vcf2fq -d 10 -Q 30 final_d_stephensi_3spp_split.vcf | gzip > \ 
+d_stephensi.fq.gz 
+
+# vcfutils.pl vcf2fq -d 10 -Q 30 final_d_spectabilis_3spp_split.vcf | gzip > \
+# d_spectabilis.fq.gz
+
 
 ## --------------------------------
 ## Copy results back to project output directory (in home)
+cp *.fq.gz /home/aubaxh002/psmc/output/
+
+mail -s 'PSMC VCF filtering finished' avrilharder@gmail.com <<< 'bcftools finished'
+
+
+
+
+
+
+
+
+
+
+
 
