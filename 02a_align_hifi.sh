@@ -132,13 +132,13 @@ raw_d_spectabilis_Dgenome.vcf
 
 
 ## C genome alignment
-bcftools mpileup --threads 20 \
--f ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa \
---output raw_d_spectabilis_Cgenome.vcf \
---output-type v \
-../align_files/sorted_d_spectabilis_Cgenome.bam
-
-bcftools call --threads 20 -c \
---output-type v \
---output unfilt_d_spectabilis_Cgenome.vcf \
-raw_d_spectabilis_Cgenome.vcf
+# bcftools mpileup --threads 20 \
+# -f ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa \
+# --output raw_d_spectabilis_Cgenome.vcf \
+# --output-type v \
+# ../align_files/sorted_d_spectabilis_Cgenome.bam
+# 
+# bcftools call --threads 20 -c \
+# --output-type v \
+# --output unfilt_d_spectabilis_Cgenome.vcf \
+# raw_d_spectabilis_Cgenome.vcf

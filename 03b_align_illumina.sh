@@ -3,7 +3,7 @@
 #   +-----------------------+
 #   |  USE:                 |
 #   |    - LARGE queue      |
-#   |    - 20 CPU + 20 Gb   |
+#   |    - 20 CPU + 60 Gb   |
 #   +-----------------------+
 #
 #  Replace the USER name in this script with your username and
@@ -33,7 +33,7 @@ mkdir /scratch/${USER}_${PROJ}/
 chmod 700 /scratch/${USER}_${PROJ}/
 
 ##  Copy input files to scratch
-cp /home/$USER/$PROJ/input/* /scratch/${USER}_${PROJ}/
+# cp /home/$USER/$PROJ/input/* /scratch/${USER}_${PROJ}/
 
 ## cd into working scratch directory
 cd /scratch/${USER}_${PROJ}/
@@ -41,7 +41,7 @@ cd /scratch/${USER}_${PROJ}/
 
 ## --------------------------------
 ## Load modules
-# module load bwa/0.7.12
+module load bwa/0.7.12
 module load samtools/1.11
 
 
@@ -114,65 +114,45 @@ cd ./align_files/
 # 
 # samtools sort -@ 19 -o sorted_d_ordii_Dgenome.bam d_ordii_Dgenome.bam
 
-## C genome - ordii
-# while read -a line
-# 	do
-# 	samtools sort -@ 19 -o sorted_${line[0]}_Cgenome.bam ${line[0]}_Cgenome.bam
-# 	done < ../d_ordii_sra_list.txt
-# 
-# samtools merge -@ 19 d_ordii_Cgenome.bam \
-# SRR1646412_Cgenome.bam \
-# SRR1646413_Cgenome.bam \
-# SRR1646414_Cgenome.bam \
-# SRR1646415_Cgenome.bam \
-# SRR1646416_Cgenome.bam \
-# SRR1646417_Cgenome.bam \
-# SRR1646418_Cgenome.bam \
-# SRR1646419_Cgenome.bam \
-# SRR1646420_Cgenome.bam \
-# SRR1646421_Cgenome.bam \
-# SRR1646422_Cgenome.bam \
-# SRR1646423_Cgenome.bam
-# 
-# samtools sort -@ 19 -o sorted_d_ordii_Cgenome.bam d_ordii_Cgenome.bam
-
 ## D genome - stephensi
-samtools sort -@ 19 -o sorted_d_stephensi_Dgenome.bam SRR14572526_Dgenome.bam 
+# samtools sort -@ 19 -o sorted_d_stephensi_Dgenome.bam SRR14572526_Dgenome.bam 
 
-## C genome	- stephensi
-samtools sort -@ 19 -o sorted_d_stephensi_Cgenome.bam SRR14572526_Cgenome.bam
+## --------------------------------
+## Get coverage information
+samtools coverage -o sorted_ordii_bam_covg.txt sorted_d_ordii_Dgenome.bam
+samtools coverage -o sorted_stephensi_bam_covg.txt sorted_d_stephensi_Dgenome.bam
+
 
 ## --------------------------------
 ## Generate VCF for each alignment
-cd /scratch/aubaxh002_psmc/variant_files
-module purge
-module load bcftools
+# cd /scratch/aubaxh002_psmc/variant_files
+# module purge
+# module load bcftools
+# 
+# ## D genome - ordii
+# bcftools mpileup --threads 20 \
+# -f ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa \
+# --output raw_d_ordii_Dgenome.vcf \
+# --output-type v \
+# ../align_files/sorted_d_ordii_Dgenome.bam 
+# 
+# bcftools call --threads 20 -c \
+# --output-type v \
+# --output unfilt_d_ordii_Dgenome.vcf \
+# raw_d_ordii_Dgenome.vcf
+# 
+# 
+# ## D genome - stephensi
+# bcftools mpileup --threads 20 \
+# -f ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa \
+# --output raw_d_stephensi_Dgenome.vcf \
+# --output-type v \
+# ../align_files/sorted_d_stephensi_Dgenome.bam 
+# 
+# bcftools call --threads 20 -c \
+# --output-type v \
+# --output unfilt_d_stephensi_Dgenome.vcf \
+# raw_d_stephensi_Dgenome.vcf
 
-## D genome - ordii
-bcftools mpileup --threads 20 \
--f ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa \
-../align_files/sorted_d_ordii_Dgenome.bam | bcftools call --threads 20 -c \
---output-type v \
---output unfilt_d_ordii_Dgenome.vcf
 
-## C genome - ordii
-bcftools mpileup --threads 20 \
--f ../sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fa \
-../align_files/sorted_d_ordii_Cgenome.bam | bcftools call --threads 20 -c \
---output-type v \
---output unfilt_d_ordii_Cgenome.vcf
-
-## D genome - stephensi
-bcftools mpileup --threads 20 \
--f ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa \
-../align_files/sorted_d_stephensi_Dgenome.bam | bcftools call --threads 20 -c \
---output-type v \
---output unfilt_d_stephensi_Dgenome.vcf
-
-## C genome  - stephensi
-bcftools mpileup  --threads 20 \
--f ../sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fa \
-../align_files/sorted_d_stephensi_Cgenome.bam | bcftools call --threads 20 -c \
---output-type v \
---output unfilt_d_stephensi_Cgenome.vcf
-
+mail -s 'Align illumina finished' avrilharder@gmail.com <<< 'align illumina finished'
