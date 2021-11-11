@@ -56,33 +56,47 @@ cd ./variant_files
 cd ../final_psmc_input/
 
 ## convert VCF to FASTQ; -d set to 1/3 avg. depth, -D set to 2X avg. depth
-vcfutils.pl vcf2fq -d 30 -D 181 ../variant_files/filtcontigs_d_ordii.recode.vcf | \
-gzip > d_ordii.fq.gz
+# vcfutils.pl vcf2fq -d 30 -D 181 ../variant_files/filtcontigs_d_ordii.recode.vcf | \
+# gzip > d_ordii.fq.gz
+# 
+# ## convert FASTQ to PSMCFA
+# fq2psmcfa d_ordii.fq.gz > d_ordii.psmcfa
+# 
+# ## run PSMC
+# ## 'r' shouldn't have much of an impact because PSMC estimates it? I think?
+# for a in 15 20 25
+# 	do
+# 	for b in 5 10
+# 		do
+# 		for c in 4 5
+# 			do
+# 			## run PSMC
+# 			psmc -N$a -t$b -r$c -p "8+25*2+2+4" -o d_ordii_N${a}_t${b}_r${c}.psmc d_ordii.psmcfa
+# 			## plot the results
+# 			psmc_plot.pl -g 0.5 -u 2.2e-09 d_ordii_N${a}_t${b}_r${c}_0.5 d_ordii_N${a}_t${b}_r${c}.psmc
+# 			psmc_plot.pl -g 1 -u 2.2e-09 d_ordii_N${a}_t${b}_r${c}_1 d_ordii_N${a}_t${b}_r${c}.psmc
+# 			done
+# 		done
+# 	done
 
-## convert FASTQ to PSMCFA
-fq2psmcfa d_ordii.fq.gz > d_ordii.psmcfa
-
-## run PSMC
-## 'r' shouldn't have much of an impact because PSMC estimates it? I think?
-for a in 15 20 25
-	do
-	for b in 5 10
-		do
-		for c in 4 5
-			do
-			## run PSMC
-			psmc -N$a -t$b -r$c -p "8+25*2+2+4" -o d_ordii_N${a}_t${b}_r${c}.psmc d_ordii.psmcfa
-			## plot the results
-			psmc_plot.pl -g 0.5 -u 2.2e-09 d_ordii_N${a}_t${b}_r${c}_0.5 d_ordii_N${a}_t${b}_r${c}.psmc
-			psmc_plot.pl -g 1 -u 2.2e-09 d_ordii_N${a}_t${b}_r${c}_1 d_ordii_N${a}_t${b}_r${c}.psmc
-			done
-		done
-	done
 	
+## run PSMC using selected settings
+# psmc -N25 -t10 -r5 -p "8+25*2+2+4" -o d_ordii_N25_t10_r5.psmc d_ordii.psmcfa
+## plot the results
+# psmc_plot.pl -g 0.5 -u 2.2e-09 d_ordii_N25_t10_r5_0.5 d_ordii_N25_t10_r5.psmc
+# psmc_plot.pl -g 1 -u 2.2e-09 d_ordii_N25_t10_r5_1 d_ordii_N25_t10_r5.psmc
 
-## plot results	
-# psmc_plot.pl -g 0.5 -u 2.2e-09 d_ordii_0.5 d_ordii.psmc
-# psmc_plot.pl -g 1 -u 2.2e-09 d_ordii_1 d_ordii.psmc
+
+## --------------------------------
+## Bootstrapping - start with 50 rounds, see how long that takes
+## splitfa to split chromosomes into shorter segments (default == 500,000)
+# splitfa d_ordii.psmcfa 100000 > split_d_ordii.psmcfa
+
+## run 50 rounds of bootstrapping (set by -b option)
+for round in {33..50}
+	do
+	psmc -N25 -t10 -r5 -p "8+25*2+2+4" -b -o d_ordii_${round}.psmc split_d_ordii.psmcfa
+	done
 
 
 ## --------------------------------

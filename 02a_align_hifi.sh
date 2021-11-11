@@ -48,9 +48,6 @@ MINIMAP=/scratch/aubaxh002_minimap2/minimap2/minimap2
 # -d ./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.mmi \
 # ./sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa
 # 
-# $MINIMAP -t 10 -x map-hifi \
-# -d ./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.mmi \
-# ./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fa
 
 
 ## --------------------------------
@@ -65,17 +62,6 @@ MINIMAP=/scratch/aubaxh002_minimap2/minimap2/minimap2
 # 	
 # 	samtools view -@ 9 -S -b ./align_files/${line}_Dgenome.sam > \
 # 	./align_files/${line}_Dgenome.bam
-# 	done
-
-## ... and to C. canadensis reference
-# cat d_spectabilis_sra_list.txt | while read line
-# 	do
-# 	$MINIMAP -ax map-hifi -t 10 \
-# 	./sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.mmi \
-# 	./sra_downloads/${line}_1.fastq.gz > ./align_files/${line}_Cgenome.sam
-# 	
-# 	samtools view -@ 9 -S -b ./align_files/${line}_Cgenome.sam > \
-# 	./align_files/${line}_Cgenome.bam
 # 	done
 
 
@@ -93,19 +79,8 @@ MINIMAP=/scratch/aubaxh002_minimap2/minimap2/minimap2
 # 
 # samtools sort -@ 9 -o sorted_d_spectabilis_Dgenome.bam d_spectabilis_Dgenome.bam
 
-## C genome alignment
-# samtools merge -@ 9 d_spectabilis_Cgenome.bam \
-# SRR14662548_Cgenome.bam \
-# SRR14662549_Cgenome.bam \
-# SRR14662550_Cgenome.bam \
-# SRR14662551_Cgenome.bam \
-# SRR14662552_Cgenome.bam
-# 
-# samtools sort -@ 9 -o sorted_d_spectabilis_Cgenome.bam d_spectabilis_Cgenome.bam
-
 ## copy to home directory
 # cp sorted_d_spectabilis_Dgenome.bam /home/aubaxh002/psmc/output/
-# cp sorted_d_spectabilis_Cgenome.bam /home/aubaxh002/psmc/output/
 
 
 ## --------------------------------
@@ -113,7 +88,6 @@ MINIMAP=/scratch/aubaxh002_minimap2/minimap2/minimap2
 cd /scratch/aubaxh002_psmc/variant_files
 
 # samtools faidx ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa
-# samtools faidx ../sra_downloads/GCA_001984765.1_C.can_genome_v1.0_genomic.fa
 
 
 ## --------------------------------
@@ -131,14 +105,11 @@ bcftools call --threads 20 -c \
 raw_d_spectabilis_Dgenome.vcf
 
 
-## C genome alignment
-# bcftools mpileup --threads 20 \
-# -f ../sra_downloads/GCA_019054845.1_ASM1905484v1_genomic.fa \
-# --output raw_d_spectabilis_Cgenome.vcf \
-# --output-type v \
-# ../align_files/sorted_d_spectabilis_Cgenome.bam
-# 
-# bcftools call --threads 20 -c \
-# --output-type v \
-# --output unfilt_d_spectabilis_Cgenome.vcf \
-# raw_d_spectabilis_Cgenome.vcf
+
+
+
+
+
+
+
+
