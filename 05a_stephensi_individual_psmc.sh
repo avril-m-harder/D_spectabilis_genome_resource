@@ -56,7 +56,7 @@ cd ./variant_files
 cd ../final_psmc_input/
 
 ## convert VCF to FASTQ; -d set to 1/3 avg. depth, -D set to 2X avg. depth
-# vcfutils.pl vcf2fq -d 30 -D 181 ../variant_files/filtcontigs_d_stephensi.recode.vcf | \
+# vcfutils.pl vcf2fq -d 11 -D 68 ../variant_files/filtcontigs_d_stephensi.recode.vcf | \
 # gzip > d_stephensi.fq.gz
 # 
 # ## convert FASTQ to PSMCFA
