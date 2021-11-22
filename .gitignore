@@ -7,3 +7,4 @@ archive/
 ./_c*_/
 ./_*_/ 
 ./extra_spp_aligns/*
+extra_spp_aligns/
