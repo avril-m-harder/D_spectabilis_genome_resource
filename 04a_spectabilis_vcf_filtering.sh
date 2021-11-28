@@ -29,27 +29,6 @@ cd /scratch/${USER}_${PROJ}/
 
 
 ## --------------------------------
-## Load modules 
-module load bcftools/1.13
-
-
-## --------------------------------
-## Index, get stats on sample VCF files
-cd variant_files/
-
-# sed -i 's/\.\.\/align_files\/sorted_d_spectabilis_Dgenome\.bam/dspec/' first_unfilt_d_spectabilis_Dgenome.vcf
-# 
-# bcftools concat \
-# --output-type v \
-# --output unfilt_d_spectabilis_Dgenome.vcf \
-# first_unfilt_d_spectabilis_Dgenome.vcf \
-# second_unfilt_d_spectabilis_Dgenome.vcf
-# 
-# bgzip unfilt_d_spectabilis_Dgenome.vcf
-# bcftools index unfilt_d_spectabilis_Dgenome.vcf.gz
-
-
-## --------------------------------
 ## Filter sample VCF files 
 module load vcftools/0.1.14
 module load bcftools/1.13
