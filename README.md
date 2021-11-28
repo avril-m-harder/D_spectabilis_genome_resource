@@ -1,6 +1,6 @@
 # D_spectabilis_genome_resource
 
-### Scripts and files associated with genome resource article for *Dipodomys spectabilis*, currently available on [bioRxiv](https://www.biorxiv.org/content/10.1101/2021.11.23.469702v1.full).
+### Scripts and files associated with genome resource article for *Dipodomys spectabilis*, currently available on [bioRxiv](https://www.biorxiv.org/content/10.1101/2021.11.23.469702v1.full) and submitted for peer-review.
 
 #### Scripts
 * 01_ncbi_downloads.sh:
