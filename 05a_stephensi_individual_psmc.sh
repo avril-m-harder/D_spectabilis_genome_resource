@@ -63,7 +63,6 @@ cd ../final_psmc_input/
 # fq2psmcfa d_stephensi.fq.gz > d_stephensi.psmcfa
 # 
 # ## run PSMC
-# ## 'r' shouldn't have much of an impact because PSMC estimates it? I think?
 # for a in 15 20 25
 # 	do
 # 	for b in 5 10
