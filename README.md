@@ -11,18 +11,18 @@
 
 * 03b_align_illumina.sh: Aligns cleaned Illumina reads to reference genome and generates VCF files.
 
-* 04a_\*_vcf_filtering.sh: 
+* 04a_\*_vcf_filtering.sh: Quality filters VCF files to keep SNPs on specified contigs.
 
-* 04b_\*_psmc_settings_filtering.sh:
+* 04b_\*_psmc_settings_filtering.sh: Filters VCF files using depth threshholds set for PSMC analyses.
 
-* 05a_\*_individual_psmc.sh:
+* 05a_\*_individual_psmc.sh: Runs PSMC analysis + 50 bootstrap replicates.
 
-* \*_snp_count.sh:
+* \*_snp_count.sh: Uses VCF files produced by \*_psmc_settings_filtering.sh to count heterozygous and homozygous genotypes.
 
-* minimap2_install.sh:
+* minimap2_install.sh: Downloads and installs Minimap 2 from Github.
 
 
 #### Files
-* \*_sra_list.txt: 
+* \*_sra_list.txt: Accession numbers for SRA read downloads.
 
-* filtered_contigs.list: 
+* filtered_contigs.list: List of contigs >= 100 kb, excluding contigs likely originating from sex chromosomes.
