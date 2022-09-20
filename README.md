@@ -1,6 +1,6 @@
 # D_spectabilis_genome_resource
 
-### Scripts and files associated with genome resource article for *Dipodomys spectabilis*, currently available at [Genome Biology and Evolution](https://academic.oup.com/gbe/article/14/1/evac005/6506520), "High-quality reference genome for an arid-adapted mammal, the banner-tailed kangaroo rat (<i>Dipodomys spectabilis</i>)"
+### Scripts and files associated with genome resource article for *Dipodomys spectabilis*, currently available at [Genome Biology and Evolution](https://academic.oup.com/gbe/article/14/1/evac005/6506520): "High-quality reference genome for an arid-adapted mammal, the banner-tailed kangaroo rat (<i>Dipodomys spectabilis</i>)"
 
 #### Scripts
 * 01_ncbi_downloads.sh: Downloads HiFi reads for *D. spectabilis*, Illumina reads for *D. stephensi* and *D. ordii*, and reference assembly for *D. spectabilis*.
